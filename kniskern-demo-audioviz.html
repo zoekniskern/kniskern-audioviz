@@ -193,6 +193,7 @@
                 //loop through the data and draw
                 for(var i=0; i<data.length; i++){
                     
+                    /*
                     //drawing line
                     ctx.strokeStyle = "red";
                     ctx.beginPath();
@@ -215,33 +216,19 @@
                     ctx.fillRect(i*(barWidth+barSpacing),topSpacing+200-data[i],barWidth,barHeight);
                     //inverted bar graph
                     ctx.fillRect(640-i*(barWidth+barSpacing),topSpacing+256-data[i]-20,barWidth,barHeight);
-                    
+                    */
                     
                     //redish circles
                     var percent = data[i] / 256;
                     var maxRadius = radiusVal*200;
                     var circleRadius = percent * maxRadius;
                     ctx.beginPath();
-                    ctx.fillStyle = makeColor(255,111,111,.34 - percent/3.0);
+                    ctx.fillStyle = "red";//makeColor(255,111,111,.34 - percent/3.0);
                     ctx.arc(canvas.width/2, canvas.height/2, circleRadius,0,2*Math.PI,false);
                     ctx.fill();
                     ctx.closePath();
                     
-                    //bluish circles, bigger, more transparent, largest
-                    ctx.beginPath();
-                    ctx.fillStyle = makeColor(0,0,255,.10-percent/10.0);
-                    ctx.arc(canvas.width/2,canvas.height/2,circleRadius*1.5,0,2*Math.PI,false);
-                    ctx.fill();
-                    ctx.closePath();
                     
-                    //yellowish circles, smallest
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.fillStyle = makeColor(200,200,0,.5-percent/5.0);
-                    ctx.arc(canvas.width/2,canvas.height/2,circleRadius*.50,0,2*Math.PI,false);
-                    ctx.fill();
-                    ctx.closePath();
-                    ctx.restore();
                 } //end of drawing loop
                 
                 manipulatePixels();

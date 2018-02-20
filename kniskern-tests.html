@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Kniskern Web Audio Visualizer</title>
+    <script src="kniskern-canvas-resize.js"></script>
+    <style>
+        body {
+            background: #efefef;
+            font-family: tahoma, verdana, sans serif;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            background: black;
+        }
+        
+        #controls {
+            margin-left:10px;
+            margin-top:10px;
+        }
+        
+        /*
+        https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
+        */
+        #canvasArea {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+        }
+        #controlArea {
+            position: absolute;
+            width: 100%;
+            height: 10%;
+            bottom: 0;
+            opacity: 0.8;
+            border: red solid 3px;
+        }
+    </style>
+    <script>
+        //IIFE
+        (function(){
+            "use strict";
+            
+            //GLOBALS
+            
+            var canvas;
+            var ctx;
+            var canvasArea,widToH,nW,nH,nWidtoH;
+            var radiusVal = 30;
+            
+            //Init function will call itself because of IIFE
+            function init(){
+                //get canvas
+                canvas = document.querySelector('canvas');
+                ctx = canvas.getContext("2d");
+                
+                canvasArea = document.getElementById('canvasArea')
+                
+                resize();
+                
+                draw();
+            }
+            
+            
+            //test drawings
+            function draw(){
+                
+                window.addEventListener('resize',resize, false);
+                window.addEventListener('orientationchange',resize, false);
+                
+                //circle
+                ctx.beginPath();
+                ctx.fillStyle = "red";//makeColor(255,111,111,.34 - percent/3.0);
+                ctx.arc(canvas.width/2, canvas.height/2, radiusVal,0,2*Math.PI,false);
+                ctx.fill();
+                ctx.closePath();
+                
+                
+               //points on a circle //https://stackoverflow.com/questions/24273990/calculating-evenly-spaced-points-on-the-perimeter-of-a-circle
+                var totalPoints = 10;
+                var centX = canvas.width/2;
+                var centY = canvas.height/2;
+                var rad = 70;
+                var x;
+                var y;
+                
+                for(var i=1;i<=totalPoints;i++){
+                    drawPoints(100,i,totalPoints);
+                    drawLines();
+                    drawPerpLines();
+                }
+                
+                function drawPoints(r,currentPoint,totalPoints){
+                    var theta = ((Math.PI*2)/totalPoints);
+                    var angle = (theta*currentPoint);
+                    
+                    x = (rad * Math.cos(angle) + centX);
+                    y = (rad * Math.sin(angle) + centY);
+                    
+                    ctx.fillStyle = "blue";
+                    var sSiz = 5;
+                    ctx.fillRect(x-sSiz/2,y-sSiz/2,sSiz,sSiz);
+                }
+                
+                function drawLines(){
+                    ctx.beginPath();
+                    ctx.moveTo(centX,centY);
+                    ctx.lineTo(x,y);
+                    ctx.strokeStyle = "yellow";
+                    ctx.stroke();
+                }
+                
+                function drawPerpLines(){
+                    var vX = x - centX;
+                    var vY = y - centY;
+                    
+
+                    var oX = centX + (vX - vY)/2 ;
+                    var oY = centY + (vX + vY)/2 ;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(oX,oY);
+                    ctx.lineTo(oX + vY,oY - vX);
+                    ctx.strokeStyle = "green";
+                    ctx.stroke();
+                }      
+                
+                } //end of drawing
+            
+           
+            //Helper function
+            function makeColor(red, green, blue, alpha){
+                var color='rgba('+red+','+green+','+blue+ ','+alpha+')';
+                return color;
+            }
+            
+            //Full Screen function
+            //crossbrowser compatibility
+            function requestFullscreen(element){
+                if(element.requestFullscreen){
+                    element.requestFullscreen();
+                } else if(element.mozRequestFullscreen){
+                    element.mozRequestFullscreen();
+                } else if(element.mozRequestFullScreen){
+                    element.mozRequestFullScreen();
+                } else if(element.webkitRequestFullscreen){
+                    element.webkitRequestFullscreen();
+                }
+                
+                //nothing happens if it WebAudio isn't supported
+            }
+            
+            window.addEventListener("load",init);
+        }());
+    </script>
+    <body>
+        <div id="canvasArea">
+            <canvas id="canvas" width="500" height="300"></canvas>
+            <div id="controlArea"></div>
+        </div>
+        <div id="controls">
+            <audio controls loop></audio>
+            <label>Track:
+                <select id="trackSelect">
+                    <option value="media/Issues.mp3">Issues (Zouk Remix)</option>
+                    <option value="media/African Queen.mp3">African Queen</option>
+                </select>
+            </label>
+            <span>
+            <label for="RadiusSlider">Radius Slider</label>
+                <input id="RadiusSlider" type ="range" min ="0.1" max="2.0" step ="0.1" value ="0.5"/>
+                <br>
+            <label for="redTint">Red Tint</label>
+                <input type ="checkbox" id="redTint">
+                <br>
+            <label for="invert">Invert</label>
+                <input type ="checkbox" id="invert">
+                <br>
+            <label for="noise">Noise</label>
+                <input type ="checkbox" id="noise">
+                <br>
+            <label for="lines">Lines</label>
+                <input type ="checkbox" id="lines">    
+            </span>
+            <br>
+            <button id="fsButton">Go Full Screen</button><br>
+            <p id="status">???</p>
+        </div>
+    </body>
+</head>
+</html>

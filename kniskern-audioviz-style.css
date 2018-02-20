@@ -1,0 +1,33 @@
+body {
+    background: #efefef;
+    font-family: tahoma, verdana, sans serif;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+    background: black;
+}
+
+#controls {
+    margin-left:10px;
+    margin-top:10px;
+}
+
+/*
+https://www.html5rocks.com/en/tutorials/casestudies/gopherwoord-studios-resizing-html5-games/
+*/
+#canvasArea {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+#controlArea {
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    bottom: 0;
+    opacity: 0.8;
+    border: red solid 3px;
+}
