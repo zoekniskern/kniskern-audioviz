@@ -9,14 +9,16 @@ var ctx;
 var radiusVal = 30;
 
 //test drawings
-function draw(){
+function draw(data){
+    
     canvas = document.querySelector('canvas');
     ctx = canvas.getContext("2d");
     
-    console.log("draw ran");
+    //console.log("draw ran");
     window.addEventListener('resize',resize, false);
     window.addEventListener('orientationchange',resize, false);
     
+    /*
     //circle
     ctx.beginPath();
     ctx.fillStyle = "red";//makeColor(255,111,111,.34 - percent/3.0);
@@ -113,17 +115,20 @@ function draw(){
         var fy = by - xPerp;
         
         // Draw perpendicular lines
-        
+        */
+    
         /*
         ctx.moveTo(cx, cy);
         ctx.lineTo(dx, dy);
         ctx.stroke();
-        */
+        
         
         ctx.moveTo(ex, ey);
         ctx.lineTo(fx, fy);
         ctx.stroke();
-    }
+        
+        }
+        */
     
 } //end of drawing
 

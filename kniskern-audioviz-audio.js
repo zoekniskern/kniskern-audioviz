@@ -8,6 +8,8 @@
     var SOUND_2 = 'media/African Queen.mp3';
     var audioElement;
     var analyserNode;
+    var delayAmount = 0;
+    var delayNode;
     var canvas;
     var ctx;
     var radiusVal = .5;
@@ -15,6 +17,7 @@
     var tintRed = false;
     var noise = false;
     var lines = false;
+    var wave = false;
     
     //Init function will call itself because of IIFE
     function init(){
@@ -45,12 +48,18 @@
         var audioCtx;
         var analyserNode;
         var sourceNode;
+        
+        
         //create new AudioContext;
         //use || for WebAudio crossbrower compatibility
         audioCtx = new (window.AudioContext || window.webkitAudioContext);
         
         //create analyzer node
         analyserNode = audioCtx.createAnalyser();
+        
+        //create DelayNode instance
+        delayNode = audioCtx.createDelay();
+        delayNode.delayTime.value = delayAmount;
         
         /*
         request NUM_SAMPLES - number of samples across the sound spectrum
@@ -61,22 +70,31 @@
         
         //hook up the <audio> element to the analyserNode
         sourceNode = audioCtx.createMediaElementSource(audioElement);
-    
         sourceNode.connect(analyserNode);
         
         //connect to destination
+        //analyserNode.connect(audioCtx.destination);
+        sourceNode.connect(audioCtx.destination);
+        sourceNode.connect(delayNode);
+        delayNode.connect(analyserNode);
         analyserNode.connect(audioCtx.destination);
         return analyserNode;
     }
     
     //setupUI function
     function setupUI(){
+        
         document.querySelector("#trackSelect").onchange = function(e){
             playStream(audioElement,e.target.value);
         };
+        document.querySelector("#ReverbSlider").onchange = function(e){
+            delayAmount = e.target.value;
+            delayNode.delayTime.value = delayAmount;
+        };
         document.querySelector("#RadiusSlider").onchange = function(e){
             radiusVal = e.target.value;
-        };               document.querySelector("#fsButton").onclick = function(){
+        };
+        document.querySelector("#fsButton").onclick = function(){
             requestFullscreen(canvas);
         };
         
@@ -122,6 +140,16 @@
             //setCheck(tintRed, e.target.value);
         }
         
+        document.getElementById('wave').onchange = function(e) {
+            //form = e.target.checked;
+            if (e.target.checked) {
+                wave = true;
+            }
+            else {
+                wave = false;
+            }
+        }
+        
         // Get working later
         /*
         function setCheck(checkbox,target){
@@ -153,60 +181,240 @@
         //Nyquist Theorem
         //array of 8-bit integers (0-255)
         var data = new Uint8Array(NUM_SAMPLES/2);
+        var data2 = new Uint8Array(NUM_SAMPLES/2);
         
+        //does not totally work
+        if(wave){
+            analyserNode.getByteTimeDomainData(data);
+            //console.log('wave');
+        } else {
+            analyserNode.getByteFrequencyData(data);
+            //console.log('freq');
+        }
         //use frequency data inside array
-        analyserNode.getByteFrequencyData(data);
+        //analyserNode.getByteFrequencyData(data);
         /////////////or waveform data
-        /////analyzerNode.getByteTimeDomainData(data);
+        //analyzerNode.getByteTimeDomainData(data);
         
         //draw
         draw();
+        ctx.clearRect(0,0,800,600);
         
-        //ctx.clearRect(0,0,800,600);
+
         //drawing variables
         var barWidth = 3;
         var barSpacing = 3;
         var barHeight = 100;
         var topSpacing = 50;
         
+        //data at specific number
+        //console.dir(data[30]);
+        
         //DRAWING LOOP PLIS
         //loop through the data and draw
         for(var i=0; i<data.length; i++){
             
-            /*
-            //drawing line
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
-            ctx.moveTo(canvas.width/2, canvas.height/2);
-            ctx.lineTo(i*(barWidth+barSpacing),topSpacing+256-data[i]);
-            ctx.stroke();
-            
-            
-            //drawing small circles
-            topSpacing = 0;
-            ctx.fillStyle = "gray";
-            ctx.beginPath();
-            ctx.arc(i*(barWidth+70),topSpacing+256-data[i],10,0,2*Math.PI,false);
-            ctx.fill();
-            ctx.closePath();
-            
-            //higher amplitude = taller bar
-            topSpacing = 30;
-            ctx.fillStyle = 'rgba(0,255,0,0.6)';
-            ctx.fillRect(i*(barWidth+barSpacing),topSpacing+200-data[i],barWidth,barHeight);
-            //inverted bar graph
-            ctx.fillRect(640-i*(barWidth+barSpacing),topSpacing+256-data[i]-20,barWidth,barHeight);
-            */
             
             //redish circles
             var percent = data[i] / 256;
             var maxRadius = radiusVal*200;
             var circleRadius = percent * maxRadius;
+            
+            
+            
+            
             ctx.beginPath();
-            ctx.fillStyle = "red";//makeColor(255,111,111,.34 - percent/3.0);
+            ctx.fillStyle = makeColor(255,111,111,.34 - percent/3.0);
             ctx.arc(canvas.width/2, canvas.height/2, circleRadius,0,2*Math.PI,false);
             ctx.fill();
             ctx.closePath();
+            
+            ctx.beginPath();
+            ctx.fillStyle = "aqua";
+            ctx.arc(canvas.width/2, canvas.height/2, circleRadius*3,0,2*Math.PI,false);
+            ctx.fill();
+            ctx.closePath();
+            
+            ctx.beginPath();
+            ctx.fillStyle = "#C0C0C0";
+            ctx.arc(canvas.width/2, canvas.height/2, circleRadius*2.5,0,2*Math.PI,false);
+            ctx.fill();
+            ctx.closePath();
+            
+            ctx.beginPath();
+            ctx.fillStyle = "white"//"#D3D3D3";//makeColor(255,111,111,.34 - percent/3.0);
+            ctx.arc(canvas.width/2, canvas.height/2, circleRadius,0,2*Math.PI,false);
+            ctx.fill();
+            ctx.closePath();
+            
+            //blue circles
+            ctx.beginPath();
+            ctx.fillStyle = makeColor(0,0,150,.10-percent/10.0);
+            ctx.arc(canvas.width/2,canvas.height/2,circleRadius*5,0,2*Math.PI,false);
+            ctx.fill();
+            ctx.closePath();
+            
+            
+            //draw line
+            
+            var lastX = 0;
+            var lastY = canvas.height * 400;
+            var newX;
+            var newY;
+            ctx.strokeStyle = 'light-blue';
+            newX = i * 10;
+            newY = 100 + 256 - data[i];
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(newX, newY);
+            ctx.stroke();
+            //ctx.closePath();
+            lastY = newY;
+            lastX = newX;
+            
+            var totalPoints = 15;
+            var centX = canvas.width/2;
+            var centY = canvas.height/2;
+            var rad = circleRadius;
+            var x,y;
+            
+            for(var h=1;h<=totalPoints;h++){
+                percent = data[40] / 256;
+                maxRadius = radiusVal*200;
+                circleRadius = percent * maxRadius;
+                rad = circleRadius;
+                
+                var theta = ((Math.PI*2)/totalPoints);
+                var angle = (theta*h);
+                var x = (rad*2 * Math.cos(angle) + centX);
+                var y = (rad*2 * Math.sin(angle) + centY);
+                
+                ctx.lineWidth = .01;
+                drawPoints(rad,h,totalPoints);
+                //drawLines();
+                drawPerpLines();
+                longPerp();
+            }
+            
+            function drawPoints(r,currentPoint,totalPoints){
+                var theta = ((Math.PI*2)/totalPoints);
+                var angle = (theta*currentPoint);
+                
+                x = (r * Math.cos(angle) + centX);
+                y = (r * Math.sin(angle) + centY);
+                
+                ctx.fillStyle = "light-blue";
+                var sSiz = 3;
+                ctx.fillRect(x-sSiz/2,y-sSiz/2,sSiz,sSiz);
+            }
+            
+            function drawLines(){
+                ctx.lineWidth  = .05;
+                ctx.beginPath();
+                ctx.moveTo(centX,centY);
+                ctx.lineTo(x,y);
+                ctx.fillStyle = "green";
+                //ctx.fillRect(x,y,3,3);
+                ctx.strokeStyle = "black";
+                ctx.stroke();
+                
+            }
+            
+            function drawPerpLines(){
+                /*
+                percent = data[30] / 256;
+                maxRadius = radiusVal*200;
+                circleRadius = percent * maxRadius;
+                rad = circleRadius;
+                */
+                ctx.save()
+                ctx.lineWidth = .05;
+                var vX = x - centX;
+                var vY = y - centY;
+                
+                var oX = centX + (vX - vY)/2 ;
+                var oY = centY + (vX + vY)/2 ;
+                
+                var sSiz = 5;
+                ctx.fillStyle = "black";
+                //ctx.fillRect(vX-sSiz/2,vY-sSiz/2,sSiz,sSiz);
+                ctx.fillStyle = "blue";
+                //ctx.fillRect(oX-sSiz/2,oY-sSiz/2,sSiz,sSiz)
+                
+                ctx.beginPath();
+                ctx.moveTo(oX,oY);
+                ctx.lineTo(oX + vY,oY - vX);
+                ctx.strokeStyle = "white";
+                ctx.stroke();
+                
+                //attempt to rotate
+                /*
+                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.rotate(10)*Math.PI/180
+                */
+                
+                ctx.restore()
+            }      
+            
+            //http://jsfiddle.net/n2gqw8of/91/
+            function longPerp(){
+                
+                percent = data[i] / 256;
+                maxRadius = radiusVal*200;
+                circleRadius = percent * maxRadius;
+                rad = circleRadius;
+                ctx.strokeStyle = 'gray';
+                ctx.lineWidth   = .05;
+                
+                ctx.beginPath();
+        
+                // Calculate perpendicular offset
+                var ax = centX;
+                var ay = centY;
+                var bx = x;
+                var by = y;
+                
+                var dx = ax - bx;
+                var dy = ay - by;
+                
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                
+                var offset = 20 * dist;
+                
+                var normX = dx / dist;
+                var normY = dy / dist;
+                
+                var xPerp = offset * normX;
+                var yPerp = offset * normY;
+                
+                // Create perpendicular points
+                
+                var cx = ax + yPerp;
+                var cy = ay - xPerp;
+                var dx = ax - yPerp;
+                var dy = ay + xPerp;
+                
+                var ex = bx - yPerp;
+                var ey = by + xPerp;
+                //ctx.fillStyle = "lightcyan";
+                var sSiz = 3;
+                ctx.fillRect(ex-sSiz/2,ey-sSiz/2,sSiz,sSiz);
+                
+                var fx = bx + yPerp;
+                var fy = by - xPerp;
+                
+                // Draw perpendicular lines
+                
+                /*
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(dx, dy);
+                ctx.stroke();
+                */
+                
+                ctx.moveTo(ex, ey);
+                ctx.lineTo(fx, fy);
+                ctx.stroke();
+            }
             
             
         } //end of drawing loop
@@ -268,6 +476,12 @@
             //put modified data back on canvas
             ctx.putImageData(imageData,0,0);
         }
+    
+    //Helper function
+function makeColor(red, green, blue, alpha){
+    var color='rgba('+red+','+green+','+blue+ ','+alpha+')';
+    return color;
+}
     
     window.addEventListener("load",init);
 }());

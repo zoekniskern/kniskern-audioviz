@@ -6,41 +6,71 @@
     <script src="kniskern-canvas-resize.js"></script>
     <script src="kniskern-audioviz-draw.js"></script>
     <script src="kniskern-audioviz-audio.js"></script>
+    
     <link rel="stylesheet" type="text/css" href="kniskern-audioviz-style.css">    
     <body>
         <div id="canvasArea">
             <canvas id="canvas" width="500" height="300"></canvas>
-            <div id="controlArea">
-            <div id="controls">
-            <audio controls loop></audio>
-            <label>Track:
-                <select id="trackSelect">
-                    <option value="media/Issues.mp3">Issues (Zouk Remix)</option>
-                    <option value="media/African Queen.mp3">African Queen</option>
-                </select>
-            </label>
-            <span>
-            <label for="RadiusSlider">Radius Slider</label>
-                <input id="RadiusSlider" type ="range" min ="0.1" max="2.0" step ="0.1" value ="0.5"/>
-                <br>
-            <label for="redTint">Red Tint</label>
-                <input type ="checkbox" id="redTint">
-                <br>
-            <label for="invert">Invert</label>
-                <input type ="checkbox" id="invert">
-                <br>
-            <label for="noise">Noise</label>
-                <input type ="checkbox" id="noise">
-                <br>
-            <label for="lines">Lines</label>
-                <input type ="checkbox" id="lines">    
-            </span>
-            <br>
-            <button id="fsButton">Go Full Screen</button><br>
+            <div id="onscreen">
             <p id="status">???</p>
-            </div>
+            <div class = 'button' id = 'open' onclick="openNav()">edit</div>
             </div>
         </div>
+        
+        <div id="controlArea">
+            <div id="controls">
+                <h3>Track Info</h3>
+                <audio id="audio" controls loop></audio>
+                <label>Track:
+                    <select id="trackSelect">
+                        <option value="media/Issues.mp3">Issues (Zouk Remix)</option>
+                        <option value="media/African Queen.mp3">African Queen</option>
+                    </select>
+                </label>
+                <br>
+                <!--options-->
+                <span>
+                <hr>
+                <h3>Data Sampling</h3>
+                    <form id='radios'>
+                    <label>Waveform</label>
+                    <input type='radio' class="data" id="wave" name="data" value="wave">
+                    
+                    <label>Frequency</label>
+                        
+                    <input type='radio' class="data" name="data" value="freq" checked>
+                    </form>
+                <br>
+                <hr>
+                <h3>Visual Controls</h3>
+                <label for="RadiusSlider">Radius Slider</label>
+                    <input id="RadiusSlider" type ="range" min ="0" max="5.0" step ="0.1" value ="0.5"/>
+                    <br>
+                <label for="ReverbSlider">Delay/Reverb</label>
+                    <input id="ReverbSlider" type ="range" min ="0" max="5.0" step ="0.1" value ="0"/>
+                    <br>
+                <label for="redTint">Red Tint</label>
+                    <input type ="checkbox" id="redTint">
+                    <br>
+                <label for="invert">Invert</label>
+                    <input type ="checkbox" id="invert">
+                    <br>
+                <label for="noise">Noise</label>
+                    <input type ="checkbox" id="noise">
+                    <br>
+                <label for="lines">Lines</label>
+                    <input type ="checkbox" id="lines">    
+                </span>
+                <br>
+                <button id="fsButton">Go Full Screen</button><br>
+                
+                <div class = 'button' id = 'close' onclick="closeNav()">close</div>
+            </div>
+        </div>
+        
+        
     </body>
+    
+    <script src="kniskern-audioviz-menu.js"></script>
 </head>
 </html>

@@ -91,6 +91,7 @@
                     drawPoints(100,i,totalPoints);
                     drawLines();
                     drawPerpLines();
+                    longPerp();
                 }
                 
                 function drawPoints(r,currentPoint,totalPoints){
@@ -109,6 +110,13 @@
                     ctx.beginPath();
                     ctx.moveTo(centX,centY);
                     ctx.lineTo(x,y);
+                    
+                    var sSiz = 5;
+                    ctx.fillStyle = "brown";
+                    ctx.fillRect(x-sSiz/2,y-sSiz/2,sSiz,sSiz);
+                    ctx.fillStyle = "greenyellow";
+                    ctx.fillRect(centX-sSiz/2,centY-sSiz/2,sSiz,sSiz);
+                    
                     ctx.strokeStyle = "yellow";
                     ctx.stroke();
                 }
@@ -117,16 +125,94 @@
                     var vX = x - centX;
                     var vY = y - centY;
                     
-
                     var oX = centX + (vX - vY)/2 ;
                     var oY = centY + (vX + vY)/2 ;
+                    
+                    var sSiz = 5;
+                    ctx.fillStyle = "pink";
+                    ctx.fillRect(vX-sSiz/2,vY-sSiz/2,sSiz,sSiz);
+                    ctx.fillStyle = "magenta";
+                    ctx.fillRect(oX-sSiz/2,oY-sSiz/2,sSiz,sSiz);
                     
                     ctx.beginPath();
                     ctx.moveTo(oX,oY);
                     ctx.lineTo(oX + vY,oY - vX);
                     ctx.strokeStyle = "green";
                     ctx.stroke();
-                }      
+                }
+                
+                //http://jsfiddle.net/n2gqw8of/91/
+                function longPerp(){
+                    ctx.strokeStyle = 'gray';
+                    ctx.lineWidth   = .5;
+                    
+                    ctx.beginPath();
+            
+                    // Calculate perpendicular offset
+                    var ax = centX;
+                    var ay = centY;
+                    var bx = x;
+                    var by = y;
+                    
+                    var dx = ax - bx;
+                    var dy = ay - by;
+                    
+                    var sSiz = 5;
+                    ctx.fillStyle = "tomato";
+                    ctx.fillRect(dx-sSiz/2,dy-sSiz/2,sSiz,sSiz);
+                    
+                    var dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    var offset = 1.5* dist;
+                    
+                    var normX = dx / dist;
+                    var normY = dy / dist;
+                    
+                    ctx.fillStyle = "teal";
+                    ctx.fillRect(normX-sSiz/2,normY-sSiz/2,sSiz,sSiz);
+                    
+                    var xPerp = offset * normX;
+                    var yPerp = offset * normY;
+                    
+                    ctx.fillStyle = "springgreen";
+                    ctx.fillRect(xPerp-sSiz/2,yPerp-sSiz/2,sSiz,sSiz);
+                    
+                    // Create perpendicular points
+                    
+                    var cx = ax + yPerp;
+                    var cy = ay - xPerp;
+                    ctx.fillStyle = "green";
+                    ctx.fillRect(cx-sSiz/2,cy-sSiz/2,sSiz,sSiz);
+                    
+                    var dx = ax - yPerp;
+                    var dy = ay + xPerp;
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(dx-sSiz/2,dy-sSiz/2,sSiz,sSiz);
+                    
+                    var ex = bx - yPerp;
+                    var ey = by + xPerp;
+                    ctx.fillStyle = "lightcyan";
+                    ctx.fillRect(ex-sSiz/2,ey-sSiz/2,sSiz,sSiz);
+                    
+                    var fx = bx + yPerp;
+                    var fy = by - xPerp;
+                    ctx.fillStyle = "brickred";
+                    ctx.fillRect(fx-sSiz/2,fy-sSiz/2,sSiz,sSiz);
+                    
+                    // Draw perpendicular lines
+                    
+                
+                    /*
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(dx, dy);
+                    ctx.stroke();
+                    */
+                    
+                    ctx.moveTo(ex, ey);
+                    ctx.lineTo(fx, fy);
+                    ctx.stroke();
+                    
+                    }
                 
                 } //end of drawing
             
